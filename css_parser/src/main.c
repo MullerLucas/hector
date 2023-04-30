@@ -6,6 +6,14 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+const int OUT_BUF_SIZE = 4096;
+const int LINE_BUF_SIZE = 64;
+const size_t MAX_NAMES = 1024;
+const size_t MAX_NAME_LEN = 128;
+const char NAME_SEPARATOR = '_';
+
+// ----------------------------------------------
+
 bool char_is_uppercase(char c) {
     return c >= 'A' && c <= 'Z';
 }
@@ -38,7 +46,7 @@ size_t str_remove_at(char* str, size_t len, int index) {
     return --len;
 }
 
-// ---------------
+// ----------------------------------------------
 
 size_t extract_css_class_name(const char* line, size_t line_len, char* css_name) {
     if (line_len == 0) { return 0; }
@@ -54,7 +62,7 @@ size_t extract_css_class_name(const char* line, size_t line_len, char* css_name)
         } else if (
             char_is_alpha(next_char) ||
             char_is_number(next_char) ||
-            next_char == '-'
+            next_char == NAME_SEPARATOR
         ) {
             css_name[css_idx] = next_char;
             ++css_idx;
@@ -79,15 +87,18 @@ size_t css_to_rust_names(const char* css_name, size_t css_len, char* rust_name) 
         char next_char = css_name[css_idx];
 
         // capitalize first character after '-'
-        if (next_char == '-') {
-            ++css_idx;
-
-            next_char = css_name[css_idx];
-            if (char_is_lowercase(next_char)) {
-                rust_name[rust_idx] = char_to_uppercase(next_char);
-            } else {
-                rust_name[rust_idx] = css_name[css_idx];
-            }
+        // if (next_char == '-') {
+        //     ++css_idx;
+        //
+        //     next_char = css_name[css_idx];
+        //     if (char_is_lowercase(next_char)) {
+        //         rust_name[rust_idx] = char_to_uppercase(next_char);
+        //     } else {
+        //         rust_name[rust_idx] = css_name[css_idx];
+        //     }
+        // }
+        if (char_is_lowercase(next_char)) {
+            rust_name[rust_idx] = char_to_uppercase(next_char);
         }
         // append other characters
         else {
@@ -102,13 +113,8 @@ size_t css_to_rust_names(const char* css_name, size_t css_len, char* rust_name) 
     return rust_idx;
 }
 
+// ----------------------------------------------
 
-
-
-const int OUT_BUF_SIZE = 4096;
-const int LINE_BUF_SIZE = 64;
-const size_t MAX_NAMES = 1024;
-const size_t MAX_NAME_LEN = 128;
 
 bool parse_file(char* in_file_path, char* out_file_path, char* enum_name) {
     FILE *fp_in;
@@ -154,7 +160,8 @@ bool parse_file(char* in_file_path, char* out_file_path, char* enum_name) {
     }
 
     // write enum declaraton
-    fprintf(fp_out, "#[allow(unused)]\n");
+
+    fprintf(fp_out, "#[allow(unused, non_camel_case_types)]\n");
     fprintf(fp_out, "pub enum %s {\n", enum_name);
     for (size_t i = 0; i < name_count; i++) {
         fprintf(fp_out, "\t%s,\n", rust_names[i]);
@@ -168,7 +175,7 @@ bool parse_file(char* in_file_path, char* out_file_path, char* enum_name) {
     fprintf(fp_out, "\tfn as_ref(&self) -> &str {\n");
     fprintf(fp_out, "\t\tmatch &self {\n");
     for (size_t i = 0; i < name_count; i++) {
-        fprintf(fp_out, "\t\t\t%s => \"%s\",\n", rust_names[i], css_names[i]);
+        fprintf(fp_out, "\t\t\tSelf::%s => \"%s\",\n", rust_names[i], css_names[i]);
     }
     fprintf(fp_out, "\t\t}\n");
     fprintf(fp_out, "\t}\n");
