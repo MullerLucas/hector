@@ -8,4 +8,4 @@ echo "running the app ..."
 echo "-------------------"
 echo ""
 
-./$APP
+./$APP "data/utils.in.css" "data/utils.rs" "HellStyle"
