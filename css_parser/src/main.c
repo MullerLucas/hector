@@ -11,6 +11,7 @@ const int LINE_BUF_SIZE = 64;
 const size_t MAX_NAMES = 1024;
 const size_t MAX_NAME_LEN = 128;
 const char NAME_SEPARATOR = '_';
+const char* PARSE_IDENT = "/* @hell-parse */";
 
 // ----------------------------------------------
 
@@ -127,23 +128,26 @@ bool parse_file(char* in_file_path, char* out_file_path, char* enum_name) {
     }
 
     // parse file
-    char leader = '.';
     char line_buf[LINE_BUF_SIZE];
     char css_names[MAX_NAMES][MAX_NAME_LEN];
     char rust_names[MAX_NAMES][MAX_NAME_LEN];
     size_t name_count = 0;
 
+    bool parse_line = false;
+
     while (fgets(line_buf, LINE_BUF_SIZE, fp_in) != NULL) {
-        if (strncmp(line_buf, &leader, 1) == 0) {
+        if (parse_line) {
             size_t line_len = strlen(line_buf);
             size_t css_len = extract_css_class_name(line_buf, line_len, css_names[name_count]);
-
             int rust_len = css_to_rust_names(css_names[name_count], css_len, rust_names[name_count]);
-
             // printf("[CSS ]: '%s' | ", css_names[name_count]);
             // printf("[RUST]: '%s' \n", rust_names[name_count]);
-
             ++name_count;
+
+            parse_line = false;
+        }
+        else if (strncmp(line_buf, PARSE_IDENT, strlen(PARSE_IDENT)) == 0) {
+            parse_line = true;
         }
     }
 
