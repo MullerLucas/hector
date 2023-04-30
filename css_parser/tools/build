@@ -1,0 +1,11 @@
+#!/bin/bash
+
+APP="css_parser"
+
+gcc ./src/main.c -o $APP || exit 1
+
+echo "running the app ..."
+echo "-------------------"
+echo ""
+
+./$APP
