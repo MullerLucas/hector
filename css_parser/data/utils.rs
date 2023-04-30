@@ -1,3 +1,4 @@
+#[allow(unused)]
 pub enum HellStyle {
 	W0,
 	W0d5,

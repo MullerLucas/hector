@@ -154,6 +154,7 @@ bool parse_file(char* in_file_path, char* out_file_path, char* enum_name) {
     }
 
     // write enum declaraton
+    fprintf(fp_out, "#[allow(unused)]\n");
     fprintf(fp_out, "pub enum %s {\n", enum_name);
     for (size_t i = 0; i < name_count; i++) {
         fprintf(fp_out, "\t%s,\n", rust_names[i]);
