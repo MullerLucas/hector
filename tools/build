@@ -1,0 +1,36 @@
+#!/bin/bash
+
+SELF_DIR=$(dirname $0)
+BIN_DIR=$SELF_DIR/../bin/hector
+SRC_DIR=$SELF_DIR/../src
+POSITIONAL_ARGS=()
+
+# -----------------------------------------------------------------------------
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --run|-r)
+      SHOULD_RUN=YES
+      shift # past argument
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+# -----------------------------------------------------------------------------
+
+# build
+g++ -g $(find "$SRC_DIR" -type f -iname "*.cpp") -o "$BIN_DIR"
+# run
+[ -n "$SHOULD_RUN" ] && eval $BIN_DIR
+
+exit 0
