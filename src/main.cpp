@@ -2,7 +2,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "core/collections/stack_array.h"
+#include "core/collections/stack_array.hpp"
 
 
 
