@@ -1,8 +1,9 @@
 #include <cstdint>
 #include <iostream>
 #include <ostream>
+#include <utility>
 
-#include "core/collections/stack_array.hpp"
+#include "collections/stack_array.hpp"
 
 
 
@@ -25,6 +26,9 @@ void test_stack_array()
     std::cout << "Peeking: "  << stack.peek()     << std::endl;
 
     stack.print();
+
+    const auto stack_2 = hell::StackArray<std::int32_t, 5>(stack);
+    const auto stack_3 = hell::StackArray<std::int32_t, 5>(std::move(stack));
 }
 
 int main(int argc, char *argv[]) {

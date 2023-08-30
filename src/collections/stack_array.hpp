@@ -1,7 +1,11 @@
+#pragma once
+
 #include <cstddef>
 #include <cassert>
 #include <cstddef>
+#include <cstdio>
 #include <iostream>
+#include <cstring>
 
 namespace hell {
 
@@ -12,6 +16,11 @@ private:
     std::size_t len;
 
 public:
+    StackArray();
+    StackArray(T data[CAPACITY], std::size_t len);
+    StackArray(const StackArray& other);
+    StackArray(StackArray&& other);
+
     std::size_t get_len();
     bool is_empty() const;
     bool is_full() const;
@@ -21,7 +30,31 @@ public:
     void print() const;
 };
 
+template <typename T, std::size_t CAPACITY>
+StackArray<T, CAPACITY>::StackArray()
+    : len(0)
+{ }
 
+template <typename T, std::size_t CAPACITY>
+StackArray<T, CAPACITY>::StackArray(T data[CAPACITY], std::size_t len)
+    : data(data), len(len)
+{ }
+
+template <typename T, std::size_t CAPACITY>
+StackArray<T, CAPACITY>::StackArray(const StackArray& other)
+{
+    printf("copy");
+    std::memcpy(this->data, other.data, sizeof(T) * other.len);
+    this->len = other.len;
+}
+
+template <typename T, std::size_t CAPACITY>
+StackArray<T, CAPACITY>::StackArray(StackArray&& other)
+{
+    printf("move");
+    std::memcpy(this->data, other.data, sizeof(T) * other.len);
+    this->len = other.len;
+}
 
 template <typename T, std::size_t CAPACITY>
 std::size_t StackArray<T, CAPACITY>::get_len() {
@@ -60,7 +93,6 @@ const T& StackArray<T, CAPACITY>::peek() const {
 
     return this->data[this->len - 1];
 }
-
 
 template <typename T, std::size_t CAPACITY>
 void StackArray<T, CAPACITY>::print() const {
