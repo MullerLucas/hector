@@ -31,7 +31,12 @@ void test_stack_array()
     const auto stack_3 = hell::StackArray<std::int32_t, 5>(std::move(stack));
 }
 
-int main(int argc, char *argv[]) {
+void test_linked_list()
+{
+}
+
+int main(int argc, char *argv[])
+{
     std::cout << "hell(o) world" << std::endl;
     test_stack_array();
 }
