@@ -4,6 +4,7 @@
 #include <ostream>
 #include <utility>
 
+#include "collections/bs_tree.hpp"
 #include "collections/linked_list.hpp"
 #include "collections/stack_array.hpp"
 
@@ -85,9 +86,34 @@ void test_linked_list()
     list_3.print();
 }
 
+void test_bs_tree()
+{
+    auto tree = hell::BSTree<int> {};
+    tree.push(100);
+
+    tree.push(50);
+    tree.push(25);
+    tree.push(75);
+
+    tree.push(150);
+    tree.push(150);
+    tree.push(175);
+    tree.push(125);
+
+    auto func = [](int value) { std::cout << "F[" << value << "]" << std::endl; };
+
+    std::cout << "-----  pre -----" << std::endl;
+    tree.traverse_pre_order(func);
+    std::cout << "-----   in -----" << std::endl;
+    tree.traverse_in_order(func);
+    std::cout << "----- post -----" << std::endl;
+    tree.traverse_post_order(func);
+}
+
 int main(int argc, char *argv[])
 {
     std::cout << "hell(o) world" << std::endl;
-    test_stack_array();
-    test_linked_list();
+    // test_stack_array();
+    // test_linked_list();
+    test_bs_tree();
 }
