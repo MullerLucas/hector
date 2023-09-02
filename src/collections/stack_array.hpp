@@ -22,7 +22,6 @@ public:
     StackArray();
     StackArray(T data[CAPACITY], std::size_t len);
     StackArray(const StackArray& other);
-    StackArray(StackArray&& other);
 
     std::size_t get_len();
     bool is_empty() const;
@@ -50,14 +49,6 @@ StackArray<T, CAPACITY>::StackArray(const StackArray& other)
 {
     std::memcpy(this->data, other.data, sizeof(T) * other.len);
     this->len = other.len;
-}
-
-template <typename T, std::size_t CAPACITY>
-StackArray<T, CAPACITY>::StackArray(StackArray&& other)
-{
-    std::memcpy(this->data, other.data, sizeof(T) * other.len);
-    this->len = other.len;
-    other.len = 0;
 }
 
 template <typename T, std::size_t CAPACITY>
@@ -107,9 +98,16 @@ const T& StackArray<T, CAPACITY>::peek() const
 template <typename T, std::size_t CAPACITY>
 void StackArray<T, CAPACITY>::print() const
 {
+    std::cout << "----------" << std::endl;
+    std::cout << "Length: "   << this->len        << std::endl;
+    std::cout << "Is empty: " << this->is_empty() << std::endl;
+    std::cout << "Is full: "  << this->is_full()  << std::endl;
+
     for (std::size_t i = 0; i < len; i++) {
         std::cout << "Value: " << this->data[i] << std::endl;
     }
+
+    std::cout << "----------" << std::endl;
 }
 
 // ----------------------------------------------
