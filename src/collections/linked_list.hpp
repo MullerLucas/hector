@@ -6,12 +6,14 @@
 #include <cstdio>
 #include <iostream>
 #include <ostream>
+
 namespace hell {
 
 // ----------------------------------------------
 
-template <typename T>
-struct LinkedListNode {
+template<typename T>
+struct LinkedListNode
+{
     T value;
     std::size_t len;
     LinkedListNode<T>* next;
@@ -20,7 +22,7 @@ struct LinkedListNode {
 
 // ----------------------------------------------
 
-template <typename T>
+template<typename T>
 class LinkedList
 {
 private:
@@ -55,12 +57,12 @@ public:
 
 // ----------------------------------------------
 
-template <typename T>
+template<typename T>
 LinkedList<T>::LinkedList()
     : head(nullptr), tail(nullptr), len(0)
 { }
 
-template <typename T>
+template<typename T>
 LinkedList<T>::LinkedList(const LinkedList<T>& other)
     : head(nullptr), tail(nullptr), len(other.len)
 {
@@ -72,7 +74,7 @@ LinkedList<T>::LinkedList(const LinkedList<T>& other)
     }
 }
 
-template <typename T>
+template<typename T>
 LinkedList<T>::LinkedList(LinkedList<T>&& other)
     : head(nullptr), tail(nullptr), len(other.len)
 {
@@ -98,13 +100,13 @@ LinkedList<T>::~LinkedList()
 
 // -----
 
-template <typename T>
+template<typename T>
 std::size_t LinkedList<T>::get_len() const
 {
     return this->len;
 }
 
-template <typename T>
+template<typename T>
 void LinkedList<T>::push_head(T value)
 {
     auto new_node = new LinkedListNode<T>;
@@ -112,17 +114,16 @@ void LinkedList<T>::push_head(T value)
     new_node->next  = this->head;
     new_node->prev  = nullptr;
 
-    if (this->head == nullptr) {
+    if (this->head == nullptr)
         this->tail = new_node;
-    } else {
+    else
         this->head->prev = new_node;
-    }
 
     this->head = new_node;
     this->len += 1;
 }
 
-template <typename T>
+template<typename T>
 void LinkedList<T>::push_tail(T value)
 {
     auto new_node = new LinkedListNode<T>;
@@ -131,19 +132,15 @@ void LinkedList<T>::push_tail(T value)
     new_node->prev  = this->tail;
 
     if (this->tail == nullptr)
-    {
         this->head = new_node;
-    }
     else
-    {
         this->tail->next = new_node;
-    }
 
     this->tail = new_node;
     this->len += 1;
 }
 
-template <typename T>
+template<typename T>
 void LinkedList<T>::insert_at(std::size_t idx, T value)
 {
     assert(idx >= 0 && idx <= this->len);
@@ -168,9 +165,8 @@ void LinkedList<T>::insert_at(std::size_t idx, T value)
     new_node->next  = prev_node->next;
 
     if (prev_node->next)
-    {
         prev_node->next->prev = new_node;
-    }
+
     prev_node->next = new_node;
 
     this->len += 1;
@@ -178,7 +174,7 @@ void LinkedList<T>::insert_at(std::size_t idx, T value)
 
 // -----
 
-template <typename T>
+template<typename T>
 T LinkedList<T>::pop_head()
 {
     assert(this->head != nullptr);
@@ -187,9 +183,8 @@ T LinkedList<T>::pop_head()
     this->head = this->head->next;
     this->head->prev = nullptr;
 
-    if (this->len == 1) {
+    if (this->len == 1)
         this->tail = nullptr;
-    }
 
     auto value = std::move(node->value);
     delete node;
@@ -198,7 +193,7 @@ T LinkedList<T>::pop_head()
     return value;
 }
 
-template <typename T>
+template<typename T>
 T LinkedList<T>::pop_tail()
 {
     assert(this->head != nullptr);
@@ -208,9 +203,7 @@ T LinkedList<T>::pop_tail()
     this->tail->next = nullptr;
 
     if (this->len == 1)
-    {
         this->head = nullptr;
-    }
 
     auto value = std::move(node->value);
     delete node;
@@ -219,20 +212,16 @@ T LinkedList<T>::pop_tail()
     return value;
 }
 
-template <typename T>
+template<typename T>
 T LinkedList<T>::remove_at(std::size_t idx)
 {
     assert(idx >= 0 && idx < this->len);
 
     if (idx == 0)
-    {
         return this->pop_head();
-    }
 
     if (idx == this->len - 1)
-    {
         return this->pop_tail();
-    }
 
     auto node = this->find_at(idx);
     node->prev->next = node->next;
@@ -247,21 +236,21 @@ T LinkedList<T>::remove_at(std::size_t idx)
 
 // -----
 
-template <typename T>
+template<typename T>
 const T& LinkedList<T>::peek_head() const
 {
     assert(this->head != nullptr);
     return this->head->value;
 }
 
-template <typename T>
+template<typename T>
 const T& LinkedList<T>::peek_tail() const
 {
     assert(this->tail!= nullptr);
     return this->tail->value;
 }
 
-template <typename T>
+template<typename T>
 const T& LinkedList<T>::peek_at(std::size_t idx) const
 {
     assert(idx >= 0 && idx <= this->len);
@@ -270,7 +259,7 @@ const T& LinkedList<T>::peek_at(std::size_t idx) const
 
 // -----
 
-template <typename T>
+template<typename T>
 void LinkedList<T>::print() const
 {
     std::cout << "----------" << std::endl;
@@ -289,7 +278,7 @@ void LinkedList<T>::print() const
 
 // -----
 
-template <typename T>
+template<typename T>
 LinkedListNode<T>* LinkedList<T>::find_at(std::size_t idx) const
 {
     auto node = this->head;
