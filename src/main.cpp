@@ -110,11 +110,13 @@ void test_bs_tree()
 
     auto func = [](int value) { std::cout << "[" << value << "]" << std::endl; };
 
-    std::cout << "-----  pre -----" << std::endl;
+    std::cout << "----- level -----" << std::endl;
+    tree.traverse_level_order(func);
+    std::cout << "-----   pre -----" << std::endl;
     tree.traverse_pre_order(func);
-    std::cout << "-----   in -----" << std::endl;
+    std::cout << "-----    in -----" << std::endl;
     tree.traverse_in_order(func);
-    std::cout << "----- post -----" << std::endl;
+    std::cout << "-----  post -----" << std::endl;
     tree.traverse_post_order(func);
 
     std::cout << "-----  clone -----" << std::endl;

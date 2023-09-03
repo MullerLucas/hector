@@ -3,6 +3,7 @@
 #include "linked_list.hpp"
 #include <functional>
 #include <ostream>
+#include <queue>
 
 namespace hell
 {
@@ -158,6 +159,29 @@ void BSTree<T>::remove(const T& value)
 }
 
 // -----
+template<typename T>
+void BSTree<T>::traverse_level_order(FnTraverseValues<T> func) const
+{
+    if (this->root == nullptr)
+        return;
+
+    // TODO(lm): implement custom queue
+    auto queue = std::queue<BSTreeNode<T>*> {};
+
+    queue.push(this->root);
+
+    while (!queue.empty())
+    {
+        auto node = queue.front();
+        if (node->left)
+            queue.push(node->left);
+        if (node->right)
+            queue.push(node->right);
+
+        func(node->value);
+        queue.pop();
+    }
+}
 
 template<typename T>
 void BSTree<T>::traverse_pre_order(FnTraverseValues<T> func) const
