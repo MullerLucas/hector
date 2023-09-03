@@ -43,6 +43,9 @@ public:
     void insert(T value);
     void remove(const T& value);
 
+    void rotate_left();
+    void rotate_right();
+
     void traverse_level_order(FnTraverseValues<T> func) const;
     void traverse_pre_order  (FnTraverseValues<T> func) const;
     void traverse_in_order   (FnTraverseValues<T> func) const;
@@ -53,7 +56,6 @@ private:
 
     static BSTreeNode<T>* remove_recursive(BSTreeNode<T>* root, const T& value);
     static BSTreeNode<T>* find_node_min_recursive(BSTreeNode<T>* root);
-
 
     static void traverse_values_pre_order_recursive (BSTreeNode<T>* node, FnTraverseValues<T> func);
     static void traverse_values_in_order_recursive  (BSTreeNode<T>* node, FnTraverseValues<T> func);
@@ -78,8 +80,8 @@ BSTree<T>::BSTree(const BSTree<T>& rhs)
     if (rhs.root == nullptr)
         return;
 
-    BSTree<T>::traverse_nodes_post_order_recursive(rhs.root, [this] (BSTreeNode<T>* node) mutable {
-        this->insert(node->value);
+    rhs.traverse_level_order([this] (T value) mutable {
+        this->insert(value);
     });
 }
 
@@ -159,6 +161,33 @@ void BSTree<T>::remove(const T& value)
 }
 
 // -----
+
+template<typename T>
+void BSTree<T>::rotate_left()
+{
+    if ((this->root == nullptr) || (this->root->right == nullptr))
+        return;
+
+    auto child = this->root->right;
+    this->root->right = child->left;
+    child->left = this->root;
+    this->root = child;
+}
+
+template<typename T>
+void BSTree<T>::rotate_right()
+{
+    if ((this->root == nullptr) || (this->root->left == nullptr))
+        return;
+
+    auto child = this->root->left;
+    this->root->left = child->right;
+    child->right = this->root;
+    this->root = child;
+}
+
+// -----
+
 template<typename T>
 void BSTree<T>::traverse_level_order(FnTraverseValues<T> func) const
 {

@@ -88,6 +88,8 @@ void test_linked_list()
 
 void test_bs_tree()
 {
+    auto print_func = [](int value) { std::cout << "[" << value << "]" << std::endl; };
+
     auto tree = hell::BSTree<int> {};
     tree.insert(100);
 
@@ -98,29 +100,39 @@ void test_bs_tree()
     tree.insert(75);
     tree.insert(70);
     tree.insert(80);
-
-    auto tree_clone = hell::BSTree<int> { tree };
-
     tree.insert(150);
     tree.insert(150);
     tree.insert(175);
     tree.insert(125);
 
+    auto tree_clone = hell::BSTree<int> { tree };
+
+    std::cout << "----- insert -----" << std::endl;
+    tree.traverse_pre_order(print_func);
+
     tree.remove(50);
+    std::cout << "----- remove -----" << std::endl;
+    tree.traverse_pre_order(print_func);
 
-    auto func = [](int value) { std::cout << "[" << value << "]" << std::endl; };
+    tree.rotate_right();
+    std::cout << "----- rotate right -----" << std::endl;
+    tree.traverse_pre_order(print_func);
 
-    std::cout << "----- level -----" << std::endl;
-    tree.traverse_level_order(func);
-    std::cout << "-----   pre -----" << std::endl;
-    tree.traverse_pre_order(func);
-    std::cout << "-----    in -----" << std::endl;
-    tree.traverse_in_order(func);
-    std::cout << "-----  post -----" << std::endl;
-    tree.traverse_post_order(func);
+    tree.rotate_left();
+    std::cout << "----- rotate left  -----" << std::endl;
+    tree.traverse_pre_order(print_func);
 
     std::cout << "-----  clone -----" << std::endl;
-    tree_clone.traverse_pre_order(func);
+    tree_clone.traverse_pre_order(print_func);
+
+    // std::cout << "-----   pre -----" << std::endl;
+    // tree.traverse_pre_order(func);
+    // std::cout << "-----    in -----" << std::endl;
+    // tree.traverse_in_order(func);
+    // std::cout << "-----  post -----" << std::endl;
+    // tree.traverse_post_order(func);
+    // std::cout << "----- level -----" << std::endl;
+    // tree.traverse_level_order(func);
 }
 
 int main(int argc, char *argv[])
