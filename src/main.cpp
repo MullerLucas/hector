@@ -89,18 +89,26 @@ void test_linked_list()
 void test_bs_tree()
 {
     auto tree = hell::BSTree<int> {};
-    tree.push(100);
+    tree.insert(100);
 
-    tree.push(50);
-    tree.push(25);
-    tree.push(75);
+    tree.insert(50);
+    tree.insert(25);
+    tree.insert(20);
+    tree.insert(30);
+    tree.insert(75);
+    tree.insert(70);
+    tree.insert(80);
 
-    tree.push(150);
-    tree.push(150);
-    tree.push(175);
-    tree.push(125);
+    auto tree_clone = hell::BSTree<int> { tree };
 
-    auto func = [](int value) { std::cout << "F[" << value << "]" << std::endl; };
+    tree.insert(150);
+    tree.insert(150);
+    tree.insert(175);
+    tree.insert(125);
+
+    tree.remove(50);
+
+    auto func = [](int value) { std::cout << "[" << value << "]" << std::endl; };
 
     std::cout << "-----  pre -----" << std::endl;
     tree.traverse_pre_order(func);
@@ -108,6 +116,9 @@ void test_bs_tree()
     tree.traverse_in_order(func);
     std::cout << "----- post -----" << std::endl;
     tree.traverse_post_order(func);
+
+    std::cout << "-----  clone -----" << std::endl;
+    tree_clone.traverse_pre_order(func);
 }
 
 int main(int argc, char *argv[])
