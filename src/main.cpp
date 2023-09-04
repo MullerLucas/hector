@@ -138,7 +138,7 @@ void test_bs_tree()
 int main(int argc, char *argv[])
 {
     std::cout << "hell(o) world" << std::endl;
-    // test_stack_array();
-    // test_linked_list();
+    test_stack_array();
+    test_linked_list();
     test_bs_tree();
 }
