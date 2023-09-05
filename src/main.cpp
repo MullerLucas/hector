@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <ostream>
@@ -6,6 +7,7 @@
 
 #include "collections/bs_tree.hpp"
 #include "collections/linked_list.hpp"
+#include "collections/point_quad_tree.hpp"
 #include "collections/stack_array.hpp"
 
 
@@ -34,7 +36,7 @@ void test_stack_array()
 
     stack.print();
 
-    const auto stack_2 = hell::StackArray<std::int32_t, 5>(stack);
+    const auto stack_2 = hell::StackArray<int32_t, 5>(stack);
     stack_2.print();
 }
 
@@ -135,10 +137,25 @@ void test_bs_tree()
     // tree.traverse_level_order(func);
 }
 
+void test_point_quad_tree()
+{
+    const auto bounds = hell::Rect2D { 0, 0, 100, 100 };
+    auto tree = hell::PointQuadTree<size_t, 4> { bounds };
+
+    tree.try_insert({ 10, 10}, 0);
+    tree.try_insert({ 20, 20}, 1);
+    tree.try_insert({ 30, 30}, 2);
+    tree.try_insert({ 40, 40}, 3);
+    // tree.try_insert({ 50, 50}, 4);
+    tree.print();
+
+}
+
 int main(int argc, char *argv[])
 {
     std::cout << "hell(o) world" << std::endl;
-    test_stack_array();
-    test_linked_list();
-    test_bs_tree();
+    // test_stack_array();
+    // test_linked_list();
+    // test_bs_tree();
+    test_point_quad_tree();
 }
