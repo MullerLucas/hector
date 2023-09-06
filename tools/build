@@ -5,6 +5,8 @@ BIN_DIR=$SELF_DIR/../bin/hector
 SRC_DIR=$SELF_DIR/../src
 POSITIONAL_ARGS=()
 
+# CXXFLAGS=-std=c++11
+
 # -----------------------------------------------------------------------------
 
 while [[ $# -gt 0 ]]; do
@@ -29,7 +31,7 @@ set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 # -----------------------------------------------------------------------------
 
 # build
-g++ -g $(find "$SRC_DIR" -type f -iname "*.cpp") -o "$BIN_DIR"
+g++ $CXXFLAGS -g $(find "$SRC_DIR" -type f -iname "*.cpp") -o "$BIN_DIR"
 # run
 [ -n "$SHOULD_RUN" ] && eval $BIN_DIR
 

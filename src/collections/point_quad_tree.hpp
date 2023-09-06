@@ -1,11 +1,11 @@
 #pragma once
 
-// #include <cmath>
-// #include <cstddef>
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <iostream>
 #include <ostream>
+#include <utility>
 #include <vector>
 #include <cstdint>
 #include <cmath>
@@ -25,9 +25,8 @@ std::ostream& operator<<(std::ostream& os, const Point2D& point);
 
 // ----------------------------------------------
 
-class Rect2D
+struct Rect2D
 {
-public:
     float_t x;
     float_t y;
     float_t width;
@@ -39,7 +38,6 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Rect2D& rect);
 
-
 // ----------------------------------------------
 
 const size_t CHILD_COUNT = 4;
@@ -50,7 +48,7 @@ const size_t SW_IDX = 2;
 const size_t SE_IDX = 3;
 
 template<typename T, size_t CAPACITY>
-class PointQuadTreeNode
+struct PointQuadTreeNode
 {
 private:
     Rect2D bounds;
@@ -62,8 +60,15 @@ private:
 
 public:
     PointQuadTreeNode<T, CAPACITY>(Rect2D bounds);
+    PointQuadTreeNode<T, CAPACITY>(const PointQuadTreeNode<T, CAPACITY>& other);
+    PointQuadTreeNode<T, CAPACITY>(PointQuadTreeNode<T, CAPACITY>&& other);
+    ~PointQuadTreeNode<T, CAPACITY>();
+
+    PointQuadTreeNode<T, CAPACITY>& operator=(const PointQuadTreeNode<T, CAPACITY>& other);
+    PointQuadTreeNode<T, CAPACITY>& operator=(PointQuadTreeNode<T, CAPACITY>&& other);
 
     bool try_insert(Point2D point, T&& value);
+    void query(Rect2D area, std::vector<T>& collector) const;
     void print() const;
 
 private:
@@ -74,6 +79,60 @@ template<typename T, size_t CAPACITY>
 PointQuadTreeNode<T, CAPACITY>::PointQuadTreeNode(Rect2D bounds)
    : bounds(bounds), len(0), is_split(false)
 { }
+
+template<typename T, size_t CAPACITY>
+PointQuadTreeNode<T, CAPACITY>::PointQuadTreeNode(const PointQuadTreeNode<T, CAPACITY>& other)
+   : bounds(other.bounds), len(other.len), is_split(other.is_split)
+{
+    // std::memcpy(this->points, other->points, other.len * sizeof(Point2D));
+    // std::memcpy(this->values, other->values, other.len * sizeof(Point2D));
+    //
+    // for (size_t i = 0; i < CHILD_COUNT; i++)
+    // {
+    //     this->children[i] = new PointQuadTreeNode<T, CAPACITY> { *other.children[i] };
+    // }
+}
+
+template<typename T, size_t CAPACITY>
+PointQuadTreeNode<T, CAPACITY>::PointQuadTreeNode(PointQuadTreeNode<T, CAPACITY>&& other)
+   : bounds  (std::exchange(other.bounds, { 0, 0, 0, 0 }))
+   , len     (std::exchange(other.len, 0))
+   , is_split(std::exchange(other.is_split, false))
+{
+    std::memcpy(this->points, other->points, other.len * sizeof(Point2D));
+    std::memcpy(this->values, other->values, other.len * sizeof(Point2D));
+
+    for (size_t i = 0; i < CHILD_COUNT; i++)
+    {
+        this->children[i] = other.children[i];
+        other.children[i] = nullptr;
+    }
+}
+
+template<typename T, size_t CAPACITY>
+PointQuadTreeNode<T, CAPACITY>::~PointQuadTreeNode()
+{
+    for (size_t i = 0; i < CHILD_COUNT; i++)
+    {
+        delete this->children[i];
+    }
+}
+
+// -----
+
+template<typename T, size_t CAPACITY>
+PointQuadTreeNode<T, CAPACITY>& PointQuadTreeNode<T, CAPACITY>::operator=(const PointQuadTreeNode<T, CAPACITY>& other)
+{
+    return *this = PointQuadTreeNode<T, CAPACITY> { other };
+}
+
+template<typename T, size_t CAPACITY>
+PointQuadTreeNode<T, CAPACITY>& PointQuadTreeNode<T, CAPACITY>::operator=(PointQuadTreeNode<T, CAPACITY>&& other)
+{
+    return *this = PointQuadTreeNode<T, CAPACITY> { std::move(other) };
+}
+
+// -----
 
 template<typename T, size_t CAPACITY>
 bool PointQuadTreeNode<T, CAPACITY>::try_insert(Point2D point, T&& value)
@@ -101,6 +160,22 @@ bool PointQuadTreeNode<T, CAPACITY>::try_insert(Point2D point, T&& value)
     }
 
     return false;
+}
+
+template<typename T, size_t CAPACITY>
+void PointQuadTreeNode<T, CAPACITY>::query(Rect2D area, std::vector<T>& collector) const
+{
+    for (size_t i = 0; i < this->len; i++)
+    {
+        if (area.contains_point(this->points[i]))
+            collector.push_back(this->values[i]);
+    }
+
+    if(this->is_split)
+    {
+        for (size_t i = 0; i < AREA_COUNT; i++)
+            this->children[i]->query(area, collector);
+    }
 }
 
 template<typename T, size_t CAPACITY>
@@ -157,7 +232,7 @@ void PointQuadTreeNode<T, CAPACITY>::split_node()
         this->bounds.y + this->bounds.height,
     } };
 
-    this->children[SW_IDX] = new PointQuadTreeNode<T, CAPACITY> { {
+    this->children[SE_IDX] = new PointQuadTreeNode<T, CAPACITY> { {
         this->bounds.x,
         this->bounds.y + this->bounds.height / 2.0f,
         this->bounds.x + this->bounds.width  / 2.0f,
@@ -171,22 +246,22 @@ void PointQuadTreeNode<T, CAPACITY>::split_node()
 // ----------------------------------------------
 
 template<typename T, size_t CAPACITY>
-class PointQuadTree
+struct PointQuadTree
 {
 private:
     PointQuadTreeNode<T, CAPACITY>* root;
 
 public:
     PointQuadTree(Rect2D bounds);
-    PointQuadTree(const PointQuadTreeNode<T, CAPACITY>& other);
-    PointQuadTree(PointQuadTreeNode<T, CAPACITY>&& other);
+    PointQuadTree(const PointQuadTree<T, CAPACITY>& other);
+    PointQuadTree(PointQuadTree<T, CAPACITY>&& other);
     ~PointQuadTree();
 
     PointQuadTree<T, CAPACITY>& operator=(const PointQuadTree<T, CAPACITY>& other);
     PointQuadTree<T, CAPACITY>& operator=(PointQuadTree<T, CAPACITY>&& other);
 
     bool try_insert(Point2D point, T&& value);
-    void query(std::vector<T>& collector);
+    void query(Rect2D area, std::vector<T>& collector) const;
     void print() const;
 };
 
@@ -195,25 +270,26 @@ public:
 template<typename T, size_t CAPACITY>
 PointQuadTree<T, CAPACITY>::PointQuadTree(Rect2D bounds)
 {
-    root = new PointQuadTreeNode<T, CAPACITY>(bounds);
+    root = new PointQuadTreeNode<T, CAPACITY> { bounds };
 }
 
 template<typename T, size_t CAPACITY>
-PointQuadTree<T, CAPACITY>::PointQuadTree(const PointQuadTreeNode<T, CAPACITY>& other)
+PointQuadTree<T, CAPACITY>::PointQuadTree(const PointQuadTree<T, CAPACITY>& other)
 {
-    // TODO(lm): implement
+    root = new PointQuadTreeNode<T, CAPACITY>{ *other.root };
 }
 
 template<typename T, size_t CAPACITY>
-PointQuadTree<T, CAPACITY>::PointQuadTree(PointQuadTreeNode<T, CAPACITY>&& other)
+PointQuadTree<T, CAPACITY>::PointQuadTree(PointQuadTree<T, CAPACITY>&& other)
 {
-    // TODO(lm): implement
+    root = new PointQuadTreeNode<T, CAPACITY>{ std::move(*other.root) };
+    other->root = nullptr;
 }
 
 template<typename T, size_t CAPACITY>
 PointQuadTree<T, CAPACITY>::~PointQuadTree()
 {
-    // TODO(lm): implement
+    delete this->root;
 }
 
 // -----
@@ -221,13 +297,13 @@ PointQuadTree<T, CAPACITY>::~PointQuadTree()
 template<typename T, size_t CAPACITY>
 PointQuadTree<T, CAPACITY>& PointQuadTree<T, CAPACITY>::operator=(const PointQuadTree<T, CAPACITY>& other)
 {
-    // TODO(lm): implement
+    return *this = PointQuadTree<T, CAPACITY>{ other };
 }
 
 template<typename T, size_t CAPACITY>
 PointQuadTree<T, CAPACITY>& PointQuadTree<T, CAPACITY>::operator=(PointQuadTree<T, CAPACITY>&& other)
 {
-    // TODO(lm): implement
+    return *this = PointQuadTree<T, CAPACITY> { std::move(other) };
 }
 
 
@@ -237,6 +313,12 @@ template<typename T, size_t CAPACITY>
 bool PointQuadTree<T, CAPACITY>::try_insert(Point2D point, T&& value)
 {
     return this->root->try_insert(point, std::move(value));
+}
+
+template<typename T, size_t CAPACITY>
+void PointQuadTree<T, CAPACITY>::query(Rect2D area, std::vector<T>& collector) const
+{
+    this->root->query(area, collector);
 }
 
 template<typename T, size_t CAPACITY>

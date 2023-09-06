@@ -142,13 +142,35 @@ void test_point_quad_tree()
     const auto bounds = hell::Rect2D { 0, 0, 100, 100 };
     auto tree = hell::PointQuadTree<size_t, 4> { bounds };
 
-    tree.try_insert({ 10, 10}, 0);
-    tree.try_insert({ 20, 20}, 1);
-    tree.try_insert({ 30, 30}, 2);
-    tree.try_insert({ 40, 40}, 3);
-    // tree.try_insert({ 50, 50}, 4);
+    assert(tree.try_insert({ 0, 10}, 0));
+    assert(tree.try_insert({ 0, 20}, 1));
+    assert(tree.try_insert({ 0, 30}, 2));
+    assert(tree.try_insert({ 0, 40}, 3));
+
+    auto tree_clone = hell::PointQuadTree<size_t, 4> { tree };
+
+    assert(tree.try_insert({ 60, 60}, 4));
+    assert(tree.try_insert({ 60, 70}, 5));
+    assert(tree.try_insert({ 60, 80}, 6));
+    assert(tree.try_insert({ 60, 90}, 7));
+
+    assert(tree.try_insert({ 50, 50}, 8));
+
+    std::cout << "----- tree -----" << std::endl;
     tree.print();
 
+    auto collector = std::vector<size_t> {};
+    tree.query({ 50, 50 , 50, 50 }, collector);
+
+    std::cout << "collected: ";
+    for (size_t c : collector)
+    {
+         std::cout << "[" << c << "] ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "\n----- tree clone -----" << std::endl;
+    tree_clone.print();
 }
 
 int main(int argc, char *argv[])
